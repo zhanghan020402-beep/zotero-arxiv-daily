@@ -31,4 +31,4 @@ jobs:
           printf "%b\n" "$CUSTOM_CONFIG" > config/custom.yaml
           echo "Use custom config: "
           cat config/custom.yaml
-          uv run src/zotero_arxiv_daily/main.py --start_date=2026-02-20 --end_date=2026-03-09
+          uv run src/zotero_arxiv_daily/main.py 
