@@ -9,6 +9,8 @@ from urllib.request import urlretrieve
 from tqdm import tqdm
 import os
 from loguru import logger
+from datetime import datetime, timedelta, timezone
+
 @register_retriever("arxiv")
 class ArxivRetriever(BaseRetriever):
     def __init__(self, config):
@@ -17,6 +19,30 @@ class ArxivRetriever(BaseRetriever):
             raise ValueError("category must be specified for arxiv.")
     def _retrieve_raw_papers(self) -> list[ArxivResult]:
         client = arxiv.Client(num_retries=10,delay_seconds=10)
+
+        #增加挖之前的paper
+        days = int(os.getenv("BACKFILL_DAYS", "0"))
+        if days > 0:
+            end = datetime.now(timezone.utc)
+            start = end - timedelta(days=days)
+            categories = " OR ".join(
+                f"cat:{c}" for c in self.config.source.arxiv.category
+            )
+            query = (
+                f"({categories}) AND "
+                f"submittedDate:[{start:%Y%m%d%H%M} TO "
+                f"{end:%Y%m%d%H%M}]"
+            )
+            search = arxiv.Search(
+                query=query,
+                max_results=100,
+                sort_by=arxiv.SortCriterion.SubmittedDate,
+                sort_order=arxiv.SortOrder.Descending,
+            )
+            logger.info(f"Backfill arXiv for past {days} days")
+            return list(client.results(search))
+
+        
         query = '+'.join(self.config.source.arxiv.category)
         # Get the latest paper from arxiv rss feed
         feed = feedparser.parse(f"https://rss.arxiv.org/atom/{query}")
