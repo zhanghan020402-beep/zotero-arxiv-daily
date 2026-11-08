@@ -2,13 +2,12 @@ name: Send emails daily
 on:
   workflow_dispatch:
   #系统跑一段时间的paper
-    inputs:
-      backfill_days:
-        description: "Past N days (0 = normal daily)"
-        required: false
-        default: "0"
-        type: string
-        
+  #  inputs:
+  #    backfill_days:
+  #      description: "Past N days (0 = normal daily)"
+  #      required: false
+  #      default: "0"
+  #      type: string    
   schedule:
     - cron: '11 20 * * *'
 
@@ -36,7 +35,7 @@ jobs:
           OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
           CUSTOM_CONFIG: ${{ vars.CUSTOM_CONFIG }}
           #distract多久的papers
-          BACKFILL_DAYS: ${{ github.event.inputs.backfill_days || '0' }}
+          #BACKFILL_DAYS: ${{ github.event.inputs.backfill_days || '0' }}
 
         run: |
           printf "%b\n" "$CUSTOM_CONFIG" > config/custom.yaml
