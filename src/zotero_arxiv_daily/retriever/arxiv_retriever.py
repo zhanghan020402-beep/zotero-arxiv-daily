@@ -35,7 +35,7 @@ class ArxivRetriever(BaseRetriever):
             )
             search = arxiv.Search(
                 query=query,
-                max_results=100,
+                max_results=5,
                 sort_by=arxiv.SortCriterion.SubmittedDate,
                 sort_order=arxiv.SortOrder.Descending,
             )
